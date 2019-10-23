@@ -38,7 +38,8 @@
 > * ### 선반 사용
 >	1. add
 >	2. add
-> * ### 블루투스로 입력 가능한명령어
+> * ### 블루투스로 입력 가능한 명령어
+>	* 명령어 목록
 >		* INPUT
 >			* NAME [shelf(num)] [보관된 물건 이름]
 >			* SIZE [shelf(num)] [보관된 물건의 1개당 길이]
@@ -54,15 +55,15 @@
 >		* SHOW
 >			* TMP
 >	* 사용 예시
->		INPUT NAME shelf0 apple -> 0번째(가장 아래 칸) 선반에 보관된 물건의 이름을 apple로 입력한다.
->		INPUT SIZE shelf1 5 -> 1번째 선반에 보관된 물건의 1개당 길이를 5cm라고 입력한다.
->		FIND NAME apple -> apple이 보관된 선반을 찾는다.
->		FIND SPACE -> 가장 많은 공간이 남은 선반을 찾는다.
->		OUTTING ON -> 외출 모드를 ON한다. 움직임이 감지되면 부저가 울린다.
->		OUTTING OFF -> 외출 모드를 OFF한다.
->		SET TMP 30 -> 온도 한계치를 30°C로 설정한다. 현재 온도가 이보다 높아지면 냉방 장치가 가동된다.
->		SET CYCLE 1000 -> 거리(물건의 양) 측정 주기를 1000밀리초(1초)로 설정한다.
->		SHOW TMP -> 현재 온도를 보여준다.
+>		* INPUT NAME shelf0 apple -> 0번째(가장 아래 칸) 선반에 보관된 물건의 이름을 apple로 입력한다.
+>		* INPUT SIZE shelf1 5 -> 1번째 선반에 보관된 물건의 1개당 길이를 5cm라고 입력한다.
+>		* FIND NAME apple -> apple이 보관된 선반을 찾는다.
+>		* FIND SPACE -> 가장 많은 공간이 남은 선반을 찾는다.
+>		* OUTTING ON -> 외출 모드를 ON한다. 움직임이 감지되면 부저가 울린다.
+>		* OUTTING OFF -> 외출 모드를 OFF한다.
+>		* SET TMP 30 -> 온도 한계치를 30°C로 설정한다. 현재 온도가 이보다 높아지면 냉방 장치가 가동된다.
+>		* SET CYCLE 1000 -> 거리(물건의 양) 측정 주기를 1000밀리초(1초)로 설정한다.
+>		* SHOW TMP -> 현재 온도를 보여준다.
 
 ## 더 해보고 싶은 것
 > * add
