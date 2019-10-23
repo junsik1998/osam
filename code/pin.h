@@ -1,4 +1,3 @@
-#pragma once
 #define DHTTYPE DHT11
 
 // output pin

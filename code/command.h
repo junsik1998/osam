@@ -1,16 +1,16 @@
-#pragma once
-#include"auto.h"
 #include"make.h"
 
 void commandProcessing(char *command, SHELF **shelf, int num){
-  char opcode[10] = {0};  // OP CODE : INPUT - NAME TMP LEN CYCLE , FIND - NAME SPACE TEMP, OUTING - ON OFF
+  char opcode[10] = {0};  // OP CODE : INPUT - NAME SIZE , FIND - NAME SPACE TEMP, OUTING - ON OFF, SET - TMP CYCLE, SHOW - TMP
   char value1[10] = {0};
   char value2[10] = {0};
+  char value3[100] = {0};
   char temp = 0;
   int index = 0;
   int index_op = 0;
   int index_v1 = 0;
   int index_v2 = 0;
+  int index_v3 = 0;
   while(command[index] != ' '){
     if(command[index] == 0) break;
     opcode[index_op] = command[index];
@@ -32,20 +32,35 @@ void commandProcessing(char *command, SHELF **shelf, int num){
       index++;
       index_v2++;
     }
+    index++;
+    while(command[index] != ' '){
+      if(command[index] == 0) break;
+      value3[index_v3] = command[index];
+      index++;
+      index_v3++;
+    }
     if(strcmp(value1, "NAME") == 0){
-      if(strcmp(value2, "shelf0") == 0) setShelfName(shelves[0]);
-      if(strcmp(value2, "shelf1") == 0) setShelfName(shelves[1]);
+      if(strcmp(value2, "shelf0") == 0) strcpy(shelves[0]->name, value3);
+      if(strcmp(value2, "shelf1") == 0) strcpy(shelves[1]->name, value3);
     }
-    else if(strcmp(value1, "TMP") == 0) limit_temperature = atoi(value2);
-    else if(strcmp(value1, "LEN") == 0){
-      if(strcmp(value2, "shelf0") == 0) setShelfSize(shelves[0]);
-      if(strcmp(value2, "shelf1") == 0) setShelfSize(shelves[1]);
+    
+    else if(strcmp(value1, "SIZE") == 0){
+      if(strcmp(value2, "shelf0") == 0) shelves[0]->size = atoi(value3);
+      if(strcmp(value2, "shelf1") == 0) shelves[1]->size = atoi(value3);
     }
+  }
+  else if(strcmp(opcode, "SET") == 0){
+    while(command[index] != ' '){
+      if(command[index] == 0) break;
+      value2[index_v2] = command[index];
+      index++;
+      index_v2++;
+    }
+    if(strcmp(value1, "TMP") == 0) limit_temperature = atoi(value2);
     else if(strcmp(value1, "CYCLE") == 0) cycle = atoi(value2);
   }
   else if(strcmp(opcode, "FIND") == 0){
     if(strcmp(value1, "NAME") == 0){
-      bluetooth.write("finding");
       SHELF *find_shelf = NULL;
       while(command[index] != '\n'){
         if(command[index] == 0) break;
@@ -53,7 +68,6 @@ void commandProcessing(char *command, SHELF **shelf, int num){
         index++;
         index_v2++;
       }
-      bluetooth.write("finding1");
       find_shelf = find_name(shelf, num, value2);
       if(find_shelf != NULL){
         show_space(find_shelf);
@@ -73,10 +87,6 @@ void commandProcessing(char *command, SHELF **shelf, int num){
              btwrite_str(maxspace);
              bluetooth.write(".\n");
     }
-    else if(strcmp(value1, "TEMP") == 0){
-      sprintf(temps, "Temperature : %d°C \n", temperature);
-      bluetooth.write(temps);
-    }
   }
   else if(strcmp(opcode, "OUTTING") == 0){
     if(strcmp(value1, "ON") == 0){
@@ -86,6 +96,12 @@ void commandProcessing(char *command, SHELF **shelf, int num){
     else if(strcmp(value1, "OFF") == 0){
       outting = 0;
       bluetooth.write("outting off\n");
+    }
+  }
+  else if(strcmp(opcode, "SHOW") == 0){
+    if(strcmp(value1, "TMP") == 0){
+      sprintf(temps, "Temperature : %d°C \n", temperature);
+      bluetooth.write(temps);
     }
   }
   else{

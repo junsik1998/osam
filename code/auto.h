@@ -1,7 +1,13 @@
-#pragma once
-#include"setting.h"
+#include"struct_var.h"
 
 // auto led control
+void setLED(LED *led, int r, int g){
+   led->r = r;
+   led->g = g;
+   analogWrite(led->r_pin, led->r);
+   analogWrite(led->g_pin, led->g);
+}
+
 void lightControl(SHELF *shelf){
     ratio = (double)shelf->now_d / shelf->max_d;
     if(ratio > 1) ratio = 1;

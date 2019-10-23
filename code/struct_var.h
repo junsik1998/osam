@@ -1,4 +1,3 @@
-#pragma once
 #include <SoftwareSerial.h>
 #include"pin.h"
 #include "DHT.h"
@@ -47,6 +46,4 @@ void inputString_temps(){
      temps[i++] = tempc;
      delay(10);
    }
-  if(temps[0] != 0) bluetooth.write(temps);
-  if(temps[0] != 0) bluetooth.write("_____\n");
 }

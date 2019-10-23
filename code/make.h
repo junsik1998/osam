@@ -1,5 +1,3 @@
-#pragma once
-#include"setting.h"
 #include"auto.h"
 
 // object make function
