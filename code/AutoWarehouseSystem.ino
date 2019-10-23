@@ -1,4 +1,5 @@
 #include "DHT.h"
+#include <SoftwareSerial.h>
 #define DHTTYPE DHT11
 
 // output pin
@@ -27,8 +28,8 @@ typedef struct Shelf{
 	int max_d; // 선반 길이
 	int now_d; // 현재 물건 길이
 	int size; // 물건 1개당 길이, 지정 안하면 기본값 0
-	String name; // 물건 이름
-	LED led;
+	char name[100]; // 물건 이름
+	LED *led;
 	// pin info
 	int trig_pin;
 	int echo_pin;
@@ -39,10 +40,12 @@ typedef struct Shelf{
 int i, temperature, limit_temperature, moving, outting, cycle;
 unsigned long pre_time = 0;
 unsigned long cur_time = 0;
+char tempc;
+char temps[100];
 SHELF *shelves[2];
 
-SoftwareSerial bluetooth(2, 3);
-DHT dht(DHTPIN, DHTTYPE);
+SoftwareSerial bluetooth(15, 14);
+DHT dht(dht_pin, DHTTYPE);
 
 // object make function
 LED* makeLED(int r_pin, int g_pin, int r, int g){
@@ -59,9 +62,9 @@ SHELF* makeShelf(int trig_pin, int echo_pin, int r_pin, int g_pin){
 	LED *led = makeLED(r_pin, g_pin, 0 ,0);
 	// 
 	shelf->max_d = check_distance(trig_pin, echo_pin);
-	shelf->now_d = 0
+	shelf->now_d = 0;
 	shelf->size = 0;
-	shelf->name = "temp name";
+  strcpy(shelf->name, "temp name");
 	shelf->led = led;
 	shelf->trig_pin = trig_pin;
 	shelf->echo_pin = echo_pin;
@@ -79,7 +82,7 @@ void setLED(LED *led, int r, int g){
 
 void setShelfName(SHELF *shelf){
 	bluetooth.write("input name : ");
-	shelf->name = bluetooth.read();
+  strcpy(shelf->name, "temp name");
 }
 
 void setShelfSize(SHELF *shelf){
@@ -106,7 +109,7 @@ int check_distance(int trig_pin, int echo_pin){
 	digitalWrite(trig_pin, HIGH);
 	delayMicroseconds(10);
 	digitalWrite(trig_pin, LOW);
-	distance = pulseIn(echoPin, HIGH) * 17 / 1000 /2;
+	distance = pulseIn(echo_pin, HIGH) * 17 / 1000 /2;
 	return distance;
 }
 
@@ -148,11 +151,11 @@ void show_space(SHELF *shelf){
 	int per = amount / max * 100;
 	int count = 0;
 	if(shelf->size > 0) count = amount / shelf->size;
-	bluetooth.write("max = %d cm ", max);
-	bluetooth.write("currnet amount = %d cm, %d %% ", amount, per);
+	//bluetooth.write("max = %d cm ", max);
+	//bluetooth.write("currnet amount = %d cm, %d %% ", amount, per);
 	if(count > 0){
-		if(count == 1) bluetooth.write("There is 1 %s on this shelf", shelf->name);
-		else bluetooth.write("There are %d %s on this shelf", count, shelf->name);
+//		if(count == 1) bluetooth.write("There is 1 %s on this shelf", shelf->name);
+//		else bluetooth.write("There are %d %s on this shelf", count, shelf->name);
 	}
 }
 
@@ -168,7 +171,90 @@ void crime_prevention(){
 	}
 }
 
+void commandProcessing(char *command, SHELF **shelf, int num){
+  char opcode[10] = {0};  // OP CODE : INPUT - NAME TMP LEN , FIND - NAME SPACE, OUTING - ON OFF
+  char value1[10] = {0};
+  char value2[10] = {0};
+  char temp = 0;
+  int index = 0;
+  int index_op = 0;
+  int index_v1 = 0;
+  int index_v2 = 0;
 
+  bluetooth.write("processing \n");
+  
+  while(command[index] != ' '){
+    if(command[index] == 0) break;
+    opcode[index_op] = command[index];
+    index++;
+    index_op++;
+  }
+  index++;
+  bluetooth.write("processing 1 \n");
+  bluetooth.write(opcode);
+  
+  while(command[index] != ' '){
+      if(command[index] == 0) break;
+      value1[index_v1] = command[index];
+      index++;
+      index_v1++;
+  }
+  index++;
+  bluetooth.write("processing 2 \n");
+  bluetooth.write(value1);
+  
+  if(strcmp(opcode, "INPUT") == 0){
+    while(command[index] != ' '){
+      if(command[index] == 0) break;
+      value2[index_v2] = command[index];
+      index++;
+      index_v2++;
+    }
+    if(strcmp(value1, "NAME") == 0){
+      if(strcmp(value2, "shelf0") == 0) setShelfName(shelves[0]);
+      if(strcmp(value2, "shelf1") == 0) setShelfName(shelves[1]);
+    }
+    else if(strcmp(value1, "TMP") == 0) limit_temperature = atoi(value2);
+    if(strcmp(value1, "LEN") == 0){
+      if(strcmp(value2, "shelf0") == 0) setShelfSize(shelves[0]);
+      if(strcmp(value2, "shelf1") == 0) setShelfSize(shelves[1]);
+    }
+  }
+  else if(strcmp(opcode, "FIND") == 0){
+    if(strcmp(value1, "NAME") == 0){
+      bluetooth.write("finding");
+      SHELF *find_shelf = NULL;
+      while(command[index] != '\n'){
+        if(command[index] == 0) break;
+        value2[index_v2] = command[index];
+        index++;
+        index_v2++;
+      }
+      bluetooth.write("finding1");
+      //find_shelf = find_name(shelf, num);
+      if(find_shelf != NULL){
+        setLED(find_shelf->led, 255, 255);
+        show_space(find_shelf);
+      }else{
+        bluetooth.write("not find");
+      }
+    }
+    if(strcmp(value1, "SPACE") == 0){
+//      find_space();
+    }
+  }
+  else if(strcmp(opcode, "OUTING") == 0){
+    if(strcmp(value1, "ON") == 0){
+      outting = 1;
+    }
+    else if(strcmp(value1, "OFF") == 0){
+      outting = 0;
+    }
+  }
+  else{
+    bluetooth.write("op code error");
+  }
+}
 
 // basic function
 void setup(){
@@ -182,13 +268,13 @@ void setup(){
 	bluetooth.begin(9600);
 	pre_time = millis();
 	limit_temperature = 30; // default
-	cycle = 300 // default
+	cycle = 300; // default
 	outting = 0;
 
 	SHELF* shelf1 = makeShelf(dsensor_trig_pin[0], dsensor_echo_pin[0], led_r_pin[0], led_g_pin[0]);
-	SHELF* shelf2 = makeShelf(dsensor_trig_pin[1], dsensor_echo_pin[1], led_r_pin[1], led2_g_pin[1]);
-	shelves[2] = [shelf1, shelf2];
-
+	SHELF* shelf2 = makeShelf(dsensor_trig_pin[1], dsensor_echo_pin[1], led_r_pin[1], led_g_pin[1]);
+	shelves[0] = shelf1;
+  shelves[1] = shelf2;
 }
 
 void loop()
@@ -196,5 +282,18 @@ void loop()
 	temperature = dht.readTemperature();
 	moving = digitalRead(pir_pin);
 	crime_prevention();
-	if(outing == 0) auto_check_distance(shelves, 2, cycle);
-}`
+	if(outting == 0) auto_check_distance(shelves, 2, cycle);
+  
+  for(i = 0; i < 100; i++){
+    temps[i] = 0;
+  }
+  i = 0;
+  while(bluetooth.available()){
+     tempc = bluetooth.read();
+     temps[i++] = tempc;
+   }
+
+  bluetooth.write(temps);
+  if(temps[0] != 0) commandProcessing(temps, shelves, 2);
+  
+}
