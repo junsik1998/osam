@@ -25,7 +25,9 @@ typedef struct Shelf{
 
 
 // variable
-int i, temperature, limit_temperature, moving, outting, cycle;
+int i, limit_temperature, moving, outting, cycle;
+int temperature;
+double ratio;
 unsigned long pre_time = 0;
 unsigned long cur_time = 0;
 char tempc;

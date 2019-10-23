@@ -3,7 +3,7 @@
 
 // output pin
 int dsensor_trig_pin[2] = {2,4};
-int led_r_pin[2] = {3,5}; // pwm
+int led_r_pin[2] = {3,6}; // pwm
 int led_g_pin[2] = {5,9}; // pwm
 int dht_pin = 7;
 int beep_pin = 8;

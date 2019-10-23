@@ -9,9 +9,10 @@ void setup(){
    }
    Serial.begin(9600);
    bluetooth.begin(9600);
+   dht.begin();
    pre_time = millis();
-   limit_temperature = 30; // default
-   cycle = 300; // default
+   limit_temperature = 20; // default
+   cycle = 1000; // default
    outting = 0;
 
    SHELF* shelf1 = makeShelf(dsensor_trig_pin[0], dsensor_echo_pin[0], led_r_pin[0], led_g_pin[0]);
@@ -22,9 +23,9 @@ void setup(){
 
 void loop()
 {
-  temperature = dht.readTemperature();
   moving = digitalRead(pir_pin);
   crime_prevention();
+  auto_temperature(limit_temperature);
   if(outting == 0) auto_check_distance(shelves, 2, cycle);
   
   inputString_temps();

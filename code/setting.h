@@ -32,31 +32,3 @@ void setShelfSize(SHELF *shelf){
     bluetooth.write(temps);
     temps[0] = 0;
 }
-
-/*
-void setLimitTemperature(){
-  sprintf(temps, "before limit_temperature = %d", limit_temperature);
-  bluetooth.write(temps);
-  bluetooth.write("input limit temperature : ");
-  while(temps[0] == 0){
-     inputString_temps();
-   }
-  limit_temperature = atoi(temps);
-  sprintf(temps, "after limit_temperature = %d", limit_temperature);
-  bluetooth.write(temps);
-  temps[0] = 0;
-}
-*/
-
-void setCycle(){
-  sprintf(temps, "before cycle = %d", cycle);
-  bluetooth.write(temps);
-  bluetooth.write("input check distance cycle : ");
-  while(temps[0] == 0){
-    inputString_temps();
-  }
-  cycle = atoi(temps);
-  sprintf(temps, "after cycle = %d", cycle);
-  bluetooth.write(temps);
-  temps[0] = 0;
-}

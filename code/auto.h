@@ -3,9 +3,11 @@
 
 // auto led control
 void lightControl(SHELF *shelf){
-    double shelfState = shelf->now_d / shelf->max_d;
-    int glightState = shelfState * 255;
-    int rlightState = (1-shelfState) * 255;
+    ratio = (double)shelf->now_d / shelf->max_d;
+    if(ratio > 1) ratio = 1;
+    if(ratio < 0) ratio = 0;
+    int glightState = ratio * 255;
+    int rlightState = (1-ratio) * 255;
     setLED(shelf->led, rlightState, glightState);
 }
 
@@ -17,7 +19,7 @@ int check_distance(int trig_pin, int echo_pin){
    digitalWrite(trig_pin, HIGH);
    delayMicroseconds(10);
    digitalWrite(trig_pin, LOW);
-   distance = pulseIn(echo_pin, HIGH) * 17 / 1000 /2;
+   distance = pulseIn(echo_pin, HIGH) * 17 / 1000;
    return distance;
 }
 
@@ -28,6 +30,10 @@ void auto_check_distance(SHELF **shelves, int num, int cycle){
       for(i = 0; i < num; i++){
         shelves[i]->now_d = check_distance(shelves[i]->trig_pin,shelves[i]->echo_pin);
         lightControl(shelves[i]);
+        // test code
+        sprintf(temps, "[%d] max_d = %d, now_d = %d \n",i, shelves[i]->max_d, shelves[i]->now_d);
+        Serial.write(temps);
+        // test end
       }
    }
 }
@@ -35,6 +41,8 @@ void auto_check_distance(SHELF **shelves, int num, int cycle){
 //auto working
 void auto_temperature(int limit){
    temperature = dht.readTemperature();
+   sprintf(temps, "tem : %d\n", temperature);
+   Serial.write(temps);
    if(temperature > limit){
       digitalWrite(relay_pin, HIGH);
    }
@@ -55,19 +63,21 @@ SHELF* find_name(SHELF **shelves, int num, char *name){
 }
 
 void show_space(SHELF *shelf){
-   int max = shelf->max_d;
+   int max_d = shelf->max_d;
    int now = shelf->now_d;
-   int amount = max - now;
-   int per = amount / max * 100;
+   int amount = max_d - now;
+   int per = (double)amount / max_d * 100;
    int count = 0;
    if(shelf->size > 0) count = amount / shelf->size;
-   sprintf(temps, "max = %d cm \n", max);
+   sprintf(temps, "name = %s \n", shelf->name);
+   bluetooth.write(temps);
+   sprintf(temps, "max = %d cm \n", max_d);
    bluetooth.write(temps);
    sprintf(temps, "currnet amount = %d cm, %d %% ", amount, per);
    bluetooth.write(temps);
    if(count > 0){
         if(count == 1){
-          sprintf(temps, "There is 1 %s on this shelf",shelf->name);
+          sprintf(temps, "There is 1 %s on this shelf", shelf->name);
           bluetooth.write(temps);
         }
         else{
@@ -95,11 +105,11 @@ void crime_prevention(){
    if(outting == 1){
       if(moving == HIGH) bluetooth.write("crime");
       while(moving == HIGH){
+         moving = digitalRead(pir_pin);
          digitalWrite(beep_pin, HIGH);
-         delay(500);
+         delay(50);
          digitalWrite(beep_pin, LOW);
-         delay(500);
+         delay(50);
       }
    }
 }
-
