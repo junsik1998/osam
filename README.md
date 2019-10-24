@@ -68,6 +68,12 @@
 ## 더 해보고 싶은 것
 > * add
 
+
+## 어플리케이션 소스코드
+>http://ai2.appinventor.mit.edu/?galleryId=5185962499506176
+
+
+
 ## 크레딧
 >Copyright © 2019 Junsik Bang, Minwook Kim
 >All Rights Reserved
