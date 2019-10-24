@@ -11,9 +11,9 @@ void setup() {
 	bluetooth.begin(9600);
 	dht.begin();
 	pre_time = millis();
-	limit_temperature = 20;	// default
-	cycle = 1000; // default
-	outting = 0;
+	limit_temperature = 30;	// default
+	cycle = 2000; // default
+	outting = 0; // default
 	SHELF* shelf1 = makeShelf(dsensor_trig_pin[0], dsensor_echo_pin[0], led_r_pin[0], led_g_pin[0]);
 	SHELF* shelf2 = makeShelf(dsensor_trig_pin[1], dsensor_echo_pin[1], led_r_pin[1], led_g_pin[1]);
 	shelves[0] = shelf1;

@@ -26,17 +26,30 @@ int check_distance(int trig_pin, int echo_pin) {
 	digitalWrite(trig_pin, HIGH);
 	delayMicroseconds(10);
 	digitalWrite(trig_pin, LOW);
-	distance = pulseIn(echo_pin, HIGH) * 17 / 1000;
+	distance = pulseIn(echo_pin, HIGH) * 17.0 / 1000.0;
 	return distance;
 }
 
 void auto_check_distance(SHELF **shelves, int num, int cycle) {
+  int before_d, now_d;
 	cur_time = millis();
 	if(cur_time - pre_time >= cycle) {
 		pre_time = cur_time;
 		for (i = 0; i < num; i++) {
-			shelves[i]->now_d = check_distance(shelves[i]->trig_pin,shelves[i]->echo_pin);
+      before_d = shelves[i]->now_d;
+      now_d = check_distance(shelves[i]->trig_pin,shelves[i]->echo_pin);
+			shelves[i]->now_d = now_d;
 			lightControl(shelves[i]);
+      if(before_d - now_d > 2){
+        if(shelves[i]->size > 0) sprintf(temps, "%s %d개가 입고되었습니다. \n", shelves[i]->name, (before_d - now_d + 1) / shelves[i]->size);
+        else sprintf(temps, "%s 이(가) %d cm만큼 입고되었습니다. \n", shelves[i]->name, before_d - now_d);
+        bluetooth.write(temps);
+      }
+      if(now_d - before_d > 2){
+        if(shelves[i]->size > 0) sprintf(temps, "%s %d개가 출고되었습니다. \n", shelves[i]->name, (now_d - before_d + 1) / shelves[i]->size);
+        else sprintf(temps, "%s 이(가) %d cm만큼 출고되었습니다. \n", shelves[i]->name, now_d - before_d);
+        bluetooth.write(temps);
+      }
 		}
 	}
 }
@@ -45,8 +58,6 @@ void auto_check_distance(SHELF **shelves, int num, int cycle) {
 //auto working
 void auto_temperature(int limit) {
 	temperature = dht.readTemperature();
-	sprintf(temps, "tem : %d\n", temperature);
-	Serial.write(temps);
 	if(temperature > limit) {
 		digitalWrite(relay_pin, HIGH);
 	} else {
@@ -65,7 +76,7 @@ SHELF* find_name(SHELF **shelves, int num, char *name) {
 	return find_shelf;
 }
 
-void show_space(SHELF *shelf) {
+void show_info(SHELF *shelf) {
 	int max_d = shelf->max_d;
 	int now = shelf->now_d;
 	int amount = max_d - now;
@@ -89,20 +100,27 @@ void show_space(SHELF *shelf) {
 	}
 }
 
-String findspace(Shelf **shelves, int num) {
+void findspace(Shelf **shelves, int num) {
 	int max = 0;
-	String shelfName;
-	for (int i=0;i<num;++i)
-	        if (shelves[i]->now_d>max) {
-		max = shelves[i]->now_d;
-		shelfName = shelves[i]->name;
-	}
-	return shelfName;
-}
-
-void btwrite_str(const String& str) {
-	for (int i=0;i<str.length();++i)
-	    bluetooth.write(str[i]);
+  int max_i = 0;
+  Shelf *max_shelf = NULL;
+	for(int i = 0; i < num; i++){
+    if(shelves[i]->now_d > max){
+      max = shelves[i]->now_d;
+      max_i = i;
+    }
+  }
+  max_shelf = shelves[max_i];
+  sprintf(temps, "가장 많은 빈 공간이 있는 곳은 %s 이(가) 보관된 칸으로\n", max_shelf->name);
+  bluetooth.write(temps);
+  sprintf(temps, "%d cm만큼 더 보관 가능합니다.\n", max);
+  bluetooth.write(temps);
+  for(i = 0; i < 3; i++){
+    setLED(max_shelf->led, 255, 0);
+    delay(300);
+    setLED(max_shelf->led, 0, 255);
+    delay(300);
+  }
 }
 
 void crime_prevention() {

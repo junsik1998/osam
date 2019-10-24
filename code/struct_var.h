@@ -1,4 +1,4 @@
-﻿#include <SoftwareSerial.h>
+#include <SoftwareSerial.h>
 #include"pin.h"
 #include "DHT.h"
 
@@ -12,14 +12,10 @@ typedef struct LED_ {
 
 typedef struct Shelf {
 	// shelf info
-	int max_d;
-	// 선반 길이
-	int now_d;
-	// 현재 물건 길이
-	int size;
-	// 물건 1개당 길이, 지정 안하면 기본값 0
-	char name[100];
-	// 물건 이름
+	int max_d;	// 선반 길이
+	int now_d;	// 현재 물건 길이
+	int size;  // 물건 1개당 길이, 지정 안하면 기본값 0
+	char name[100];	// 물건 이름
 	LED *led;
 	// pin info
 	int trig_pin;
