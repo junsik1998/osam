@@ -96,6 +96,7 @@
 > * 카메라 모듈을 이용하여 침입 발생 시 사진 전송
 
 
+
 ## 어플리케이션 소스코드
 >http://ai2.appinventor.mit.edu/?galleryId=5185962499506176
 
@@ -119,3 +120,4 @@
 >Copyright © 2011 – 2019 Adafruit Industries
 >License : MIT License https://github.com/adafruit/DHT-sensor-library/blob/master/DHT.h
 
+=======
