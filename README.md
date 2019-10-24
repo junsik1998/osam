@@ -67,3 +67,22 @@
 
 ## 더 해보고 싶은 것
 > * add
+
+## 크레딧
+>Copyright © 2019 Junsik Bang, Minwook Kim
+>All Rights Reserved
+>
+>이 프로젝트에서는 아래와 같은 오픈소스들이 사용되었음
+>
+>Arduino
+>License : GPLv2, LGPLv2 https://github.com/arduino/Arduino/blob/master/license.txt
+>
+>App Inventor
+>https://appinventor.mit.edu/
+>Copyright © 2012 – 2019 Massachusetts Institute of Technology
+>License : Creative Commons Attribution ShareAlike 3.0 Unported
+>
+>DHT-sensor
+>Copyright © 2011 – 2019 Adafruit Industries
+>License : MIT License https://github.com/adafruit/DHT-sensor-library/blob/master/DHT.h
+
