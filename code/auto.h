@@ -36,20 +36,22 @@ void auto_check_distance(SHELF **shelves, int num, int cycle) {
 	if(cur_time - pre_time >= cycle) {
 		pre_time = cur_time;
 		for (i = 0; i < num; i++) {
-      before_d = shelves[i]->now_d;
-      now_d = check_distance(shelves[i]->trig_pin,shelves[i]->echo_pin);
+    		before_d = shelves[i]->now_d;
+    		now_d = check_distance(shelves[i]->trig_pin,shelves[i]->echo_pin);
 			shelves[i]->now_d = now_d;
 			lightControl(shelves[i]);
-      if(before_d - now_d > 2){
-        if(shelves[i]->size > 0) sprintf(temps, "%s %d개가 입고되었습니다. \n", shelves[i]->name, (before_d - now_d + 1) / shelves[i]->size);
-        else sprintf(temps, "%s 이(가) %d cm만큼 입고되었습니다. \n", shelves[i]->name, before_d - now_d);
-        bluetooth.write(temps);
-      }
-      if(now_d - before_d > 2){
-        if(shelves[i]->size > 0) sprintf(temps, "%s %d개가 출고되었습니다. \n", shelves[i]->name, (now_d - before_d + 1) / shelves[i]->size);
-        else sprintf(temps, "%s 이(가) %d cm만큼 출고되었습니다. \n", shelves[i]->name, now_d - before_d);
-        bluetooth.write(temps);
-      }
+    		if(before_d - now_d > 2){
+    			if(shelves[i]->size > 0){
+    				sprintf(temps, "%s %d개가 입고되었습니다. \n", shelves[i]->name, (int)(((double)(before_d - now_d) / shelves[i]->size) + 0.5));
+    				bluetooth.write(temps);
+    			}
+    		}
+    		if(now_d - before_d > 2){
+    			if(shelves[i]->size > 0){
+    				sprintf(temps, "%s %d개가 출고되었습니다. \n", shelves[i]->name, (int)(((double)(now_d - before_d) / shelves[i]->size) + 0.5));
+    				bluetooth.write(temps);
+    			}
+    		}
 		}
 	}
 }
@@ -82,7 +84,7 @@ void show_info(SHELF *shelf) {
 	int amount = max_d - now;
 	int per = (double)amount / max_d * 100;
 	int count = 0;
-	if(shelf->size > 0) count = amount / shelf->size;
+	if(shelf->size > 0) count = (int)(((double) amount / shelf->size) + 0.5);
 	sprintf(temps, "name = %s \n", shelf->name);
 	bluetooth.write(temps);
 	sprintf(temps, "max = %d cm \n", max_d);
@@ -102,25 +104,25 @@ void show_info(SHELF *shelf) {
 
 void findspace(Shelf **shelves, int num) {
 	int max = 0;
-  int max_i = 0;
-  Shelf *max_shelf = NULL;
+	int max_i = 0;
+	Shelf *max_shelf = NULL;
 	for(int i = 0; i < num; i++){
-    if(shelves[i]->now_d > max){
-      max = shelves[i]->now_d;
-      max_i = i;
-    }
-  }
-  max_shelf = shelves[max_i];
-  sprintf(temps, "가장 많은 빈 공간이 있는 곳은 %s 이(가) 보관된 칸으로\n", max_shelf->name);
-  bluetooth.write(temps);
-  sprintf(temps, "%d cm만큼 더 보관 가능합니다.\n", max);
-  bluetooth.write(temps);
-  for(i = 0; i < 3; i++){
-    setLED(max_shelf->led, 255, 0);
-    delay(300);
-    setLED(max_shelf->led, 0, 255);
-    delay(300);
-  }
+		if(shelves[i]->now_d > max){
+			max = shelves[i]->now_d;
+			max_i = i;
+		}
+	}
+	max_shelf = shelves[max_i];
+	sprintf(temps, "가장 많은 빈 공간이 있는 곳은 %s 이(가) 보관된 칸으로\n", max_shelf->name);
+	bluetooth.write(temps);
+	sprintf(temps, "%d cm만큼 더 보관 가능합니다.\n", max);
+	bluetooth.write(temps);
+	for(i = 0; i < 3; i++){
+		setLED(max_shelf->led, 255, 0);
+		delay(300);
+		setLED(max_shelf->led, 0, 255);
+		delay(300);
+	}
 }
 
 void crime_prevention() {
